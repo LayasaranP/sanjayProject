@@ -30,7 +30,6 @@ async def update_servo(data: ServoDegrees):
 
 @app.get("/update_servo")
 async def get_servo():
-    print(current_degrees)
     return current_degrees
     # return "{},{},{},{}".format(
     #     current_degrees["servo1"],
