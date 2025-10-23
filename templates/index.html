@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Servo Control</title>
+</head>
+<body>
+    <h1>Servo Control</h1>
+    <div>
+        <label>Servo 1: <span id="s1_val">0</span>°</label>
+        <input type="range" id="s1" min="0" max="180" value="0">
+    </div>
+    <div>
+        <label>Servo 2: <span id="s2_val">0</span>°</label>
+        <input type="range" id="s2" min="0" max="180" value="0">
+    </div>
+    <div>
+        <label>Servo 3: <span id="s3_val">0</span>°</label>
+        <input type="range" id="s3" min="0" max="180" value="0">
+    </div>
+    <div>
+        <label>Servo 4: <span id="s4_val">0</span>°</label>
+        <input type="range" id="s4" min="0" max="180" value="0">
+    </div>
+
+    <script>
+        const sliders = [1,2,3,4].map(i => document.getElementById(`s${i}`));
+        const spans = [1,2,3,4].map(i => document.getElementById(`s${i}_val`));
+
+        function sendServoData(){
+            const data = {
+                servo1: parseInt(sliders[0].value),
+                servo2: parseInt(sliders[1].value),
+                servo3: parseInt(sliders[2].value),
+                servo4: parseInt(sliders[3].value),
+            };
+            fetch('/update_servo', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+        }
+
+        sliders.forEach((slider, i) => {
+            slider.addEventListener('input', () => {
+                spans[i].textContent = slider.value;
+                sendServoData();
+            });
+        });
+    </script>
+</body>
+</html>
