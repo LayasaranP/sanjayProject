@@ -1,24 +1,76 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Servo Control</title>
+    <title>Mecharontics Project - Robotic Arm</title>
+
+    <style>
+        body {
+            background-color: #f4ecd8;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+            padding-top: 20px;
+            color: #4a3f2f;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            margin-top:25px;
+            margin-bottom:40px;
+            font-size:2rem;
+        }
+
+
+        .servo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+            line-height: 2;
+        }
+
+        label {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        input[type="range"] {
+            width: 300px;
+            height: 10px;
+            cursor: pointer;
+        }
+
+        span {
+            font-weight: bold;
+            color: #a16f3f;
+        }
+    </style>
 </head>
 <body>
-    <h1>Servo Control</h1>
-    <div>
-        <label>Servo 1: <span id="s1_val">0</span>°</label>
+    <h1>Mecharontics Project - Robotic Arm</h1>
+   <h2>Servo Control</h2>
+
+    <div class="servo-container">
+        <label for="s1">Servo 1: <span id="s1_val">0</span>°</label>
         <input type="range" id="s1" min="0" max="180" value="0">
     </div>
-    <div>
-        <label>Servo 2: <span id="s2_val">0</span>°</label>
+    <div class="servo-container">
+        <label for="s2">Servo 2: <span id="s2_val">0</span>°</label>
         <input type="range" id="s2" min="0" max="180" value="0">
     </div>
-    <div>
-        <label>Servo 3: <span id="s3_val">0</span>°</label>
+    <div class="servo-container">
+        <label for="s3">Servo 3: <span id="s3_val">0</span>°</label>
         <input type="range" id="s3" min="0" max="180" value="0">
     </div>
-    <div>
-        <label>Servo 4: <span id="s4_val">0</span>°</label>
+    <div class="servo-container">
+        <label for="s4">Servo 4: <span id="s4_val">0</span>°</label>
         <input type="range" id="s4" min="0" max="180" value="0">
     </div>
 
@@ -37,7 +89,9 @@
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
-            });
+            }).then(response => {
+                if (!response.ok) console.error('Failed to update servo:', response.statusText);
+            }).catch(err => console.error('Error:', err));
         }
 
         sliders.forEach((slider, i) => {
