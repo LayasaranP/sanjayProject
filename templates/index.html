@@ -2,7 +2,6 @@
 <html>
 <head>
     <title>Mechatronics Project - Robotic Arm</title>
-
     <style>
         body {
             background-color: #f4ecd8;
@@ -27,7 +26,6 @@
             font-size:2rem;
         }
 
-
         .servo-container {
             display: flex;
             flex-direction: column;
@@ -51,11 +49,16 @@
             font-weight: bold;
             color: #a16f3f;
         }
+
+        #status {
+            margin-top: 30px;
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
     <h1>Mechatronics Project - Robotic Arm</h1>
-   <h2>Servo Control</h2>
+    <h2>Servo Control</h2>
 
     <div class="servo-container">
         <label for="s1">Servo 1: <span id="s1_val">0</span>°</label>
@@ -74,32 +77,69 @@
         <input type="range" id="s4" min="0" max="180" value="0">
     </div>
 
+    <p id="status">Connecting...</p>
+
     <script>
         const sliders = [1,2,3,4].map(i => document.getElementById(`s${i}`));
         const spans = [1,2,3,4].map(i => document.getElementById(`s${i}_val`));
+        const statusText = document.getElementById("status");
+        let timeout;
 
-        function sendServoData(){
+        async function sendServoData() {
             const data = {
                 servo1: parseInt(sliders[0].value),
                 servo2: parseInt(sliders[1].value),
                 servo3: parseInt(sliders[2].value),
                 servo4: parseInt(sliders[3].value),
             };
-            fetch('/update_servo', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            }).then(response => {
-                if (!response.ok) console.error('Failed to update servo:', response.statusText);
-            }).catch(err => console.error('Error:', err));
+            try {
+                const res = await fetch('/update_servo', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    statusText.textContent = "Sent to server";
+                } else {
+                    statusText.textContent = "Failed to send";
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                statusText.textContent = "Connection error";
+            }
+        }
+
+        // Debounce slider movements to avoid spam
+        function sendServoDataDebounced() {
+            clearTimeout(timeout);
+            timeout = setTimeout(sendServoData, 200);
         }
 
         sliders.forEach((slider, i) => {
             slider.addEventListener('input', () => {
                 spans[i].textContent = slider.value;
-                sendServoData();
+                sendServoDataDebounced();
             });
         });
+
+        // Load initial servo positions
+        async function loadInitialValues() {
+            try {
+                const res = await fetch("/update_servo");
+                const data = await res.json();
+                sliders[0].value = data.servo1;
+                sliders[1].value = data.servo2;
+                sliders[2].value = data.servo3;
+                sliders[3].value = data.servo4;
+                spans.forEach((span, i) => span.textContent = sliders[i].value);
+                statusText.textContent = "Connected";
+            } catch (err) {
+                console.error("Failed to load initial values:", err);
+                statusText.textContent = "Could not load values";
+            }
+        }
+
+        loadInitialValues();
     </script>
 </body>
 </html>
